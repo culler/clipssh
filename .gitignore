@@ -1,0 +1,16 @@
+autom4te.cache
+Makefile
+build
+config.*
+configure
+*.dylib
+manifest.uuid
+pkgIndex.tcl
+*Uuid.h
+*.dylib
+*.so
+*.exe
+*.obj
+*.out
+Release*
+versions.vc
