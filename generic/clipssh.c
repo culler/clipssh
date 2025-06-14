@@ -51,7 +51,6 @@ ClipsshObjCmd(
     }
     clip = Tcl_GetStringFromObj(objv[1], &length);
     addTransientClip(clip);
-    ckfree((void *) clip);
     return TCL_OK;
 }
 
