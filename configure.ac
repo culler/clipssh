@@ -4,7 +4,7 @@ dnl	generate the file "configure", which is run during Tcl installation
 dnl	to configure the system for the local environment.
 
 #-----------------------------------------------------------------------
-# Sample configure.ac for Tcl Extensions.  The only places you should
+# sample configure.ac for Tcl Extensions.  The only places you should
 # need to modify this file are marked by the string __CHANGE__
 #-----------------------------------------------------------------------
 
@@ -19,7 +19,7 @@ dnl	to configure the system for the local environment.
 # so that we create the export library with the dll.
 #-----------------------------------------------------------------------
 
-AC_INIT([Clipssh],[0.0.1])
+AC_INIT([clipssh],[0.0.1])
 
 #--------------------------------------------------------------------
 # Call TEA_INIT as the first TEA_ macro to set up initial vars.
@@ -71,7 +71,7 @@ TEA_SETUP_COMPILER
 # and PKG_TCL_SOURCES.
 #-----------------------------------------------------------------------
 
-TEA_ADD_SOURCES([clipssh.c])
+TEA_ADD_SOURCES([clipssh.c pasteboard.m])
 TEA_ADD_HEADERS([])
 TEA_ADD_INCLUDES([])
 TEA_ADD_LIBS([])
@@ -92,33 +92,16 @@ TEA_ADD_TCL_SOURCES([])
 #--------------------------------------------------------------------
 
 #CLEANFILES="$CLEANFILES pkgIndex.tcl"
-
-TEA_ADD_INCLUDES([-I\"${srcdir}/generic\"])
-#if test "${TEA_PLATFORM}" == "windows" ; then
-#    TEA_ADD_SOURCES([tkglWinGL.c])
-#    TEA_ADD_INCLUDES([-I\"${srcdir}/win\"])
-#else
-#    if test "${TEA_WINDOWINGSYSTEM}" = "x11"; then
-#        TEA_ADD_SOURCES([xclipboard.c])
-#        TEA_ADD_INCLUDES([-I\"${srcdir}/unix\"])
-#	TEA_ADD_LIBS([-lX11 -lGL])
-#    else
-if test "${TEA_PLATFORM}" == "unix" && \
-	test "${TEA_WINDOWINGSYSTEM}" != "x11"; then
-    TEA_ADD_SOURCES([pasteboard.c])
-    TEA_ADD_INCLUDES([-I\"${srcdir}/macosx\"])
-    # On macOS, compile Tkgl source files as objective C because they need
-    # access to the OpenGL framework and the NSView class.
-    TEA_ADD_CFLAGS([-x objective-c -mmacosx-version-min=10.9])
-    TEA_ADD_CFLAGS([-arch x86_64 -arch arm64])
-    # Apple has deprecated OpenGL.  We don't need to hear about it:
-    TEA_ADD_CFLAGS([-Wno-deprecated-declarations])
-    # Really these should go in LDFLAGS but tcl.m4 is lame.
-    TEA_ADD_LIBS([-arch x86_64 -arch arm64 -mmacosx-version-min=10.9])
-    TEA_ADD_LIBS([-lobjc -framework OpenGL -framework AppKit])
+if test "${TEA_PLATFORM}" = "windows" ; then
+    # Ensure no empty if clauses
+    :
+    #TEA_ADD_SOURCES([win/winFile.c])
+    #TEA_ADD_INCLUDES([-I\"$(${CYGPATH} ${srcdir}/win)\"])
 else
-    echo "=================================================="
-    echo "${TEA_PLATFORM}"
+    # Ensure no empty else clauses
+    :
+    #TEA_ADD_SOURCES([unix/unixFile.c])
+    #TEA_ADD_LIBS([-lsuperfly])
 fi
 
 #--------------------------------------------------------------------
@@ -131,16 +114,11 @@ fi
 #--------------------------------------------------------------------
 
 TEA_PUBLIC_TCL_HEADERS
-TEA_PRIVATE_TCL_HEADERS
+#TEA_PRIVATE_TCL_HEADERS
 
 TEA_PUBLIC_TK_HEADERS
-TEA_PRIVATE_TK_HEADERS
+#TEA_PRIVATE_TK_HEADERS
 #TEA_PATH_X
-
-# The Tk macros above don't seem to work correctly for us.
-# Edit these if your Tk installation is somewhere else.
-#TEA_ADD_INCLUDES([-I\"/Library/Frameworks/Tk.framework/Versions/Current/Headers\"])
-#TEA_ADD_INCLUDES([-I\"/Library/Frameworks/Tk.framework/Versions/Current/PrivateHeaders\"])
 
 #--------------------------------------------------------------------
 # Check whether --enable-threads or --disable-threads was given.
@@ -186,14 +164,14 @@ TEA_MAKE_LIB
 # a pkgIndex.tcl file or anything else at extension build time.
 #--------------------------------------------------------------------
 
-#TEA_PROG_TCLSH
+TEA_PROG_TCLSH
 #TEA_PROG_WISH
 
 #--------------------------------------------------------------------
 # Setup a *Config.sh.in configuration file.
 #--------------------------------------------------------------------
 
-#TEA_EXPORT_CONFIG([sample])
+#TEA_EXPORT_CONFIG([clipssh])
 #AC_SUBST(SAMPLE_VAR)
 
 #--------------------------------------------------------------------
@@ -203,9 +181,8 @@ TEA_MAKE_LIB
 #--------------------------------------------------------------------
 
 AC_CONFIG_FILES([Makefile pkgIndex.tcl])
-#AC_CONFIG_FILES([sampleConfig.sh])
-#Calling this generates a warning from autoconf 
-#AC_CONFIG_HEADERS([config.h:config.h.in])
+#AC_CONFIG_FILES([clipsshConfig.sh])
+
 #--------------------------------------------------------------------
 # Finally, substitute all of the various values into the files
 # specified with AC_CONFIG_FILES.

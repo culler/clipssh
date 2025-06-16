@@ -111,7 +111,7 @@ RANLIB		= @RANLIB@
 RANLIB_STUB	= @RANLIB_STUB@
 SHLIB_CFLAGS	= @SHLIB_CFLAGS@
 SHLIB_LD	= @SHLIB_LD@
-SHLIB_LD_LIBS	= @SHLIB_LD_LIBS@
+SHLIB_LD_LIBS	= -framework AppKit @SHLIB_LD_LIBS@
 STLIB_LD	= @STLIB_LD@
 #TCL_DEFS	= @TCL_DEFS@
 TCL_BIN_DIR	= @TCL_BIN_DIR@
@@ -313,10 +313,14 @@ $(PKG_STUB_LIB_FILE): $(PKG_STUB_OBJECTS)
 
 VPATH = $(srcdir):$(srcdir)/build:$(srcdir)/generic:$(srcdir)/unix:$(srcdir)/win:$(srcdir)/macosx
 
-build/%.@OBJEXT@: %.c
+%.@OBJEXT@: %.c
 	$(COMPILE) -c $< -o $@
 
-$(srcdir)/build/tkgl.@OBJEXT@:	tkglUuid.h
+%.@OBJEXT@: %.m
+	$(COMPILE) -c $< -o $@
+
+#$(srcdir)/clipssh.@OBJEXT@:	tkglUuid.h
+#	$(COMPILE) -c $< -o $@
 
 $(srcdir)/manifest.uuid:
 	printf "git-" >$(srcdir)/manifest.uuid

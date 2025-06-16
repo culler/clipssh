@@ -1,11 +1,6 @@
 #include <tcl.h>
 #include <AppKit/NSPasteboard.h>
 
-static void ClearTransientClip(void *clientData) {
-    (void) clientData;
-    [[NSPasteboard generalPasteboard] clearContents];
-}
-
 @interface pasteboardOwner: NSObject <NSPasteboardTypeOwner>
 
 @property(retain) NSString *clip;
@@ -14,13 +9,25 @@ static void ClearTransientClip(void *clientData) {
 
 @implementation pasteboardOwner
 
+// Clang claims that the NSPasteboard is not an NSObject.
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wobjc-method-access"
+
 - (void) pasteboard: (NSPasteboard *) sender
  provideDataForType: (NSString *) type
 {
+    // Provide our clip to the pasteboard, as requested.
     [sender setString:self.clip forType:type];
+    // Clear our clip.
     [self setClip: nil];
-    Tcl_CreateTimerHandler(100, ClearTransientClip, NULL);
+    // Clear the pasteboard after a short delay.
+    [sender  performSelector: @selector(clearContents) 
+		  withObject: nil 
+		  afterDelay: 0.1
+     ];
 }
+
+#pragma clang diagnostic pop
 
 @end
 
@@ -31,17 +38,17 @@ void initPasteboard() {
     if (owner == nil) {
 	owner = [[pasteboardOwner alloc] init];
 	[owner retain];
-	[pb declareTypes:[NSArray arrayWithObject:NSStringPboardType]
+	[pb declareTypes:[NSArray arrayWithObject:NSPasteboardTypeString]
 		   owner:nil];
 	[pb setString:[[NSString alloc] initWithUTF8String:""]
-	      forType:NSStringPboardType];
+	      forType:NSPasteboardTypeString];
     }
 }
 
 void addTransientClip(const char *clip) {    
     NSPasteboard *pb = [NSPasteboard generalPasteboard];
     [owner setClip: [[NSString alloc] initWithUTF8String:clip]];
-    [pb addTypes:[NSArray arrayWithObject:NSStringPboardType]
+    [pb addTypes:[NSArray arrayWithObject:NSPasteboardTypeString]
 	   owner:owner];
 }
 
