@@ -16,7 +16,7 @@ extern "C" {
 #include "tk.h"
 #include <string.h>
 
-extern void addTransientClip(const char *clip);
+extern void addTransientClip(const char *clip, double delay);
 extern void initPasteboard();
 
 /*
@@ -43,14 +43,24 @@ ClipsshObjCmd(
     Tcl_Obj *const objv[])	/* Argument objects. */
 {
     const char *clip;
+    int millis = 500;
     Tcl_Size length;
-
-    if (objc != 2) {
-	Tcl_WrongNumArgs(interp, 1, objv, "clipstring");
+    static const char *const optionStrings[] = {"-delay", NULL};
+    if (objc != 2 && objc != 4) {
+	Tcl_WrongNumArgs(interp, 1, objv, "?-delay millis? string");
 	return TCL_ERROR;
     }
-    clip = Tcl_GetStringFromObj(objv[1], &length);
-    addTransientClip(clip);
+    clip = Tcl_GetStringFromObj(objv[objc -1], &length);
+    if (objc == 4) {
+	if (Tcl_GetIndexFromObj(NULL, objv[1], optionStrings,
+				"option", 0, NULL) != TCL_OK) {
+	    return TCL_ERROR;
+	}
+	if (Tcl_GetIntFromObj(interp, objv[2], &millis) != TCL_OK) {
+	    return TCL_ERROR;
+	}
+    }
+    addTransientClip(clip, millis / 1000.0);
     return TCL_OK;
 }
 
