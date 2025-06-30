@@ -8,6 +8,7 @@
 
 @property(retain) NSString *clip;
 @property NSTimeInterval delay;
+@property Tk_Window tkwin;
 
 @end
 
@@ -37,7 +38,9 @@
 		  withObject: nil 
 		  afterDelay: 0.1
      ];
-    Tk_SendVirtualEvent(0, "ClipsshPaste", NULL);
+    if (self.tkwin) {
+	Tk_SendVirtualEvent(self.tkwin, "ClipsshPaste", NULL);
+    }
 }
 
 // Our goal is to write a transient value to the pasteboard, which should
@@ -87,10 +90,11 @@ void initPasteboard() {
     }
 }
 
-void addTransientClip(const char *clip, NSTimeInterval delay) {    
+void addTransientClip(Tk_Window tkwin, const char *clip, NSTimeInterval delay) {    
     NSPasteboard *pb = [NSPasteboard generalPasteboard];
     [owner setClip: [[NSString alloc] initWithUTF8String:clip]];
     [owner setDelay: delay];
+    [owner setTkwin: tkwin];
 
     // First clear the pasteboard.  (When the clipboard is not empty, the
     // pasteboard will not ask our owner object to provide its data.)  The

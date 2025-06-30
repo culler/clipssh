@@ -16,7 +16,7 @@ extern "C" {
 #include "tk.h"
 #include <string.h>
 
-extern void addTransientClip(const char *clip, double delay);
+extern void addTransientClip(Tk_Window tkwin, const char *clip, double delay);
 extern void initPasteboard();
 
 /*
@@ -42,6 +42,7 @@ ClipsshObjCmd(
     int objc,			/* Number of arguments. */
     Tcl_Obj *const objv[])	/* Argument objects. */
 {
+    Tk_Window tkwin = (Tk_Window) clientData;
     const char *clip;
     int millis = 500;
     Tcl_Size length;
@@ -60,7 +61,10 @@ ClipsshObjCmd(
 	    return TCL_ERROR;
 	}
     }
-    addTransientClip(clip, millis / 1000.0);
+    if (tkwin == 0) {
+	tkwin = Tk_MainWindow(interp);
+    }
+    addTransientClip(tkwin, clip, millis / 1000.0);
     return TCL_OK;
 }
 
